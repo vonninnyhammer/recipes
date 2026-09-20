@@ -1,0 +1,5 @@
+# local runtime state that must never be published
+*.log
+__pycache__/
+*.pyc
+.env
