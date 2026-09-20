@@ -74,6 +74,52 @@ FOOD_HINTS = re.compile(
     re.I,
 )
 
+CATEGORIES = ["Appetizer", "Snack", "Drink", "Chicken", "Beef", "Steak", "Dessert", "Medicine"]
+
+CAT_KEYWORDS = [
+    ("Medicine", r"\b(medicine|remedy|herbal|tincture|decoction|elixir|healing|cough|"
+                 r"cold remedy|immune|detox|cleansing|holistic|supplement|infusion|tonic)\b"),
+    ("Steak", r"\b(steak|ribeye|filet sirloin|sirloin|t-bone|strip steak|ny strip)\b"),
+    ("Beef", r"\b(beef|ground beef|mince|brisket|roast beef|corned beef|meatball|beef stew)\b"),
+    ("Chicken", r"\b(chicken|drumstick|wings?|poultry|hens?)\b"),
+    ("Drink", r"\b(drink|smoothie|juice|shake|cocktail|mocktail|coffee|latte|tea|"
+              r"lemonade|kombucha|iced|broth|soup)\b"),
+    ("Dessert", r"\b(dessert|cake|cookie|brownie|muffin|pie|pudding|custard|cheesecake|"
+                 r"ice cream|candy|sorbet|sweet|chocolate|trifle|doughnut|donut|bar)\b"),
+    ("Appetizer", r"\b(appetizer|starter|dip|bruschetta|spring roll|nacho|guacamole|salsa|"
+                  r"finger food|deviled|crostini|hummus|meze|tapas)\b"),
+    ("Snack", r"\b(snack|trail mix|granola|popcorn|protein ball|energy ball|bites?|jerky)\b"),
+]
+
+
+def guess_category(*texts):
+    low = " ".join(t.lower() for t in texts if t)
+    counts = [(cat, len(re.findall(pat, low))) for cat, pat in CAT_KEYWORDS]
+    counts.sort(key=lambda x: -x[1])
+    return [cat for cat, n in counts[:2] if n > 0]
+
+
+def apply_category(markdown, *texts):
+    m = re.search(r"^category:\s*\"([^\"]*)\"", markdown, re.M)
+    given = [c.strip() for c in (m.group(1).split(",") if m and m.group(1) else [])]
+    known = {c.lower(): c for c in CATEGORIES}
+    cats = [known.get(c.lower()) for c in given if known.get(c.lower())]
+    cats = [c for c in cats if c]
+    if not cats:
+        cats = guess_category(*texts)
+    cats = cats[:2] or ["Snack"]
+    line = 'category: "' + ", ".join(cats) + '"'
+    return re.sub(r"^category:\s*\".*?\"", line, markdown, count=1, flags=re.M)
+
+
+def cleanup_artifacts():
+    for fn in os.listdir(CACHE):
+        if fn.startswith("subtitle") or fn.startswith("img_"):
+            try:
+                os.remove(os.path.join(CACHE, fn))
+            except OSError:
+                pass
+
 
 class LinkExtractor(HTMLParser):
     def __init__(self):
@@ -391,7 +437,8 @@ def format_with_llm(model, title, url, content, note=""):
         "or a video transcript). If the text contains several recipes, return ONLY the one "
         "matching the title given. Output ONLY a Markdown file using this exact template, "
         "every field present; use Unknown where a value is absent; prep_time/cook_time in "
-        "minutes; tags as a short list:\n\n"
+        "minutes; tags as a short list; category must be 1-2 values chosen ONLY from "
+        "Appetizer, Snack, Drink, Chicken, Beef, Steak, Dessert, Medicine (comma separated):\n\n"
         "---\n"
         f'title: "{title}"\n'
         f'source_url: "{url}"\n'
@@ -399,6 +446,7 @@ def format_with_llm(model, title, url, content, note=""):
         'prep_time: "Unknown"\n'
         'cook_time: "Unknown"\n'
         'servings: "Unknown"\n'
+        'category: ""\n'
         "tags: []\n"
         "---\n\n"
         "## Ingredients\n- [ ] item\n\n## Instructions\n1. step\n"
@@ -445,6 +493,7 @@ def structural_format(title, url, content):
         f'prep_time: "{meta.get("prep", "Unknown")}"\n'
         f'cook_time: "{meta.get("cook", "Unknown")}"\n'
         f'servings: "{meta.get("servings", "Unknown")}"\n'
+        'category: ""\n'
         "tags: []\n"
         "---\n\n"
         "## Ingredients\n" + ing_lines + "\n\n## Instructions\n" + instr_lines + "\n"
@@ -648,6 +697,7 @@ def main():
             if followed:
                 markdown += f"\n## Full recipe\n{followed}\n"
             markdown = re.sub(r"\n(#{1,6}\s)", r"\n\n\1", markdown)
+            markdown = apply_category(markdown, title, content)
             fname_out = slugify(title) + ".md"
             dest = os.path.join(DEST_DIR, fname_out)
             n = 2
@@ -659,6 +709,7 @@ def main():
             mark_processed(msgid)
             processed += 1
             print(f"    saved: {dest}")
+            cleanup_artifacts()
             if store_type == "maildir":
                 cur = os.path.join(path, "..", "cur", fname)
                 try:

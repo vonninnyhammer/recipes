@@ -3,25 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Recipes</title>
+<title>Recipes — guison.net</title>
 <style>
-  :root { --bg:#fefefe; --text:#1a1d24; --dim:#5a6270; --accent:#0030f0; --border:#d9dce1; --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.65; padding:0 24px; }
-  .wrap { max-width:760px; margin:0 auto; padding:48px 0 96px; }
-  h1 { font-size:1.9rem; margin-bottom:16px; }
-  a { color:var(--accent); text-decoration:none; }
-  ul { list-style:none; padding-left:0; }
-  li { padding:14px 0; border-bottom:1px solid var(--border); }
-  .t { font-size:1.1rem; }
-  .d { color:var(--dim); font-size:.88rem; margin-top:2px; }
+  :root {{ --bg:#fefefe; --text:#1a1d24; --dim:#5a6270; --accent:#0030f0; --border:#d9dce1; --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }}
+  * {{ margin:0; padding:0; box-sizing:border-box; }}
+  body {{ background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.65; padding:0 24px; }}
+  .wrap {{ max-width:760px; margin:0 auto; padding:48px 0 96px; }}
+  a {{ color:var(--accent); text-decoration:none; }}
+  .back {{ display:inline-block; margin-bottom:24px; font-size:.9rem; color:var(--dim); }}
+  h1 {{ font-size:1.9rem; margin-bottom:6px; }}
+  .sub {{ color:var(--dim); font-size:.95rem; margin-bottom:28px; }}
+  input[name=ing] {{ width:100%; max-width:560px; font:inherit; font-size:1rem; padding:12px 16px; border:1px solid var(--border); border-radius:8px; outline:none; }}
+  input[name=ing]:focus {{ border-color:var(--accent); }}
+  .chips {{ margin:16px 0 8px; }}
+  .chip {{ cursor:pointer; user-select:none; display:inline-block; border:1px solid var(--border); border-radius:999px; padding:4px 12px; font-size:.82rem; color:var(--dim); margin:3px 6px 3px 0; background:#fff; }}
+  .chip.on {{ background:var(--accent); border-color:var(--accent); color:#fff; }}
+  .count {{ color:var(--dim); font-size:.85rem; margin:10px 0 4px; }}
+  .card {{ display:block; padding:16px 2px; border-bottom:1px solid var(--border); }}
+  .card .t {{ font-size:1.05rem; font-weight:600; }}
+  .card .d {{ color:var(--dim); font-size:.85rem; margin-top:2px; }}
+  .tag {{ display:inline-block; background:#eef1f6; border:1px solid var(--border); border-radius:999px; padding:1px 8px; font-size:.72rem; color:var(--dim); margin:3px 5px 0 0; }}
+  #empty {{ display:none; color:var(--dim); margin-top:20px; }}
+  noscript .card {{ display:block !important; }}
 </style>
 </head>
 <body>
 <div class="wrap">
+<a class="back" href="/">&larr; guison.net</a>
 <h1>Recipes</h1>
-<p>1 recipe(s) — auto-picked from shared social links.</p>
-<ul><li><a class='t' href='recipes/glowy-skin-chia-pudding.html'>GLOWY SKIN CHIA PUDDING ✨🌸</a><div class='d'>2026-09-20</div></li></ul>
+<p class="sub">1 recipe(s). Search by what you have, or filter by category.</p>
+<input type="text" name="ing" placeholder="Ingredients you have — e.g. chicken, onion, garlic" autocomplete="off">
+<div class="chips" id="chips"><span class='chip' data-cat='Appetizer'>Appetizer</span><span class='chip' data-cat='Snack'>Snack</span><span class='chip' data-cat='Drink'>Drink</span><span class='chip' data-cat='Chicken'>Chicken</span><span class='chip' data-cat='Beef'>Beef</span><span class='chip' data-cat='Steak'>Steak</span><span class='chip' data-cat='Dessert'>Dessert</span><span class='chip' data-cat='Medicine'>Medicine</span></div>
+<p class="count" id="count"></p>
+<div id="list"><a class='card' href='./glowy-skin-chia-pudding.html' data-title='GLOWY SKIN CHIA PUDDING ✨🌸' data-cats='Dessert' data-ing='1 1/2 cups fresh raspberries, mashed (plus more for topping) 1 cup Greek yogurt 1/2 cup milk 4 tbsp honey (or more, adjust to your sweetness preference) 1/4 cup chia seeds' data-tags='[&quot;High Protein&quot;,&quot;Gluten Free&quot;,&quot;High Fiber&quot;,&quot;[Vegetarian](https://lainiecooks.substack.com/p/vegetarian)&quot;]'><span class='t'>GLOWY SKIN CHIA PUDDING ✨🌸</span><div class='d'>2026-09-20 &mdash; 5 ingredient(s)</div><span class='tag'>Dessert</span></a></div>
+<p id="empty">No recipes match the current filter.</p>
 </div>
+<script src="./search.js"></script>
 </body>
 </html>

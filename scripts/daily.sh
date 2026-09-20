@@ -11,6 +11,9 @@ python3 "$HOME/bin/recipe-ingest.py" || true
 
 python3 "$HOME/bin/recipe-publish.py"
 
+rsync -az -e "ssh -o ConnectTimeout=8" "$RECIPE_REPO/site/" forge-ts:/var/www/guison/recipes/ \
+  && echo "recipes: synced to forge (/var/www/guison/recipes)"
+
 cd "$RECIPE_REPO"
 if git diff --quiet && git diff --cached --quiet; then
   echo "recipes: nothing to commit"
