@@ -15,7 +15,7 @@ from html.parser import HTMLParser
 PROFILE = os.environ.get("RECIPE_THUNDERBIRD_PROFILE", "")
 DEST_DIR = os.path.expanduser(os.environ.get("RECIPE_DEST", "~/Documents/Recipes"))
 LEDGER = os.path.expanduser(os.environ.get("RECIPE_LEDGER", "~/.config/recipe-agent/processed.log"))
-OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://100.86.150.70:11434")
 JINA = "https://r.jina.ai/"
 YTDLP = os.path.expanduser(os.environ.get("RECIPE_YTDLP", "~/.local/bin/yt-dlp"))
 CACHE = os.path.expanduser(os.environ.get("RECIPE_CACHE", "~/.cache/recipe-agent"))
@@ -416,7 +416,7 @@ def ollama_chat_model():
         with urllib.request.urlopen(OLLAMA_URL + "/api/tags", timeout=5) as r:
             data = json.load(r)
         names = [m["name"] for m in data.get("models", [])]
-        preferred = ["qwen2.5:3b", "llama3.2:3b", "gemma2:2b", "qwen2.5:1.5b", "phi3:mini"]
+        preferred = ["qwen3.8:27b", "qwen2.5:3b", "llama3.2:3b", "gemma2:2b", "qwen2.5:1.5b", "phi3:mini"]
         for p in preferred:
             if any(p in n for n in names):
                 return p
