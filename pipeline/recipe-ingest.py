@@ -594,6 +594,17 @@ def mark_processed(tag):
         f.write(tag + "\n")
 
 
+FAILED_LEDGER = os.environ.get("RECIPE_FAIL_LEDGER", LEDGER + ".failed")
+
+
+def mark_failed(tag, reason=""):
+    """Record a message that could not be delivered to a recipe file WITHOUT
+    burning it in the main ledger, so a later run will retry it."""
+    os.makedirs(os.path.dirname(FAILED_LEDGER), exist_ok=True)
+    with open(FAILED_LEDGER, "a") as f:
+        f.write(tag + (f"\t{reason}" if reason else "") + "\n")
+
+
 def main():
     global LOCAL_ROOT, IMAP_ROOT
     prof = discover_profile()
@@ -638,7 +649,7 @@ def main():
                 urls = extract_urls(raw, True)
             url = recipe_candidates(urls)
             if not url:
-                mark_processed(msgid)
+                mark_failed(msgid, "no-recipe-url")
                 skipped += 1
                 continue
             url = url[0]
@@ -647,7 +658,7 @@ def main():
             print(f"    url: {url}  [{platform_of(url)}]")
             fetched = fetch(url)
             if not fetched:
-                mark_processed(msgid)
+                mark_failed(msgid, "fetch-failed")
                 skipped += 1
                 continue
             print(f"    page title: {jina_title(fetched) or '(none)'}")
